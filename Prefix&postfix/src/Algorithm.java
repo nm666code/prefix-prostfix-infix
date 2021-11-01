@@ -2,7 +2,7 @@ import java.util.Stack;
 
 public class Algorithm {
 	
-	private static Stack<String> operators = new Stack<String>(); 
+	private static Stack<Character> operators = new Stack<Character>(); 
 	
 	public static String toPostfix(String instr) {
 		String outstr = "";
@@ -11,19 +11,19 @@ public class Algorithm {
 				outstr += c;
 			else {
 				if(operators.isEmpty())
-					operators.push(Character.toString(c));
+					operators.push(c);
 				else {
 					if (c == '(')
-						operators.add(Character.toString(c));
+						operators.push(c);
 					else if(c == ')') {
-						while(operators.peek().charAt(0) != '(')
+						while(operators.peek() != '(')
 							outstr += operators.pop();
 						operators.pop();//pop '('
 					}
 					else {
-						while(!operators.empty() && priority(c) <= priority(operators.peek().charAt(0)))
+						while(!operators.empty() && priority(c) <= priority(operators.peek()))
 							outstr += operators.pop();
-						operators.add(Character.toString(c));
+						operators.push(c);
 					}	
 				}
 			}
@@ -42,19 +42,19 @@ public class Algorithm {
 				outstr = c + outstr;
 			else {
 				if(operators.isEmpty())
-					operators.add(Character.toString(c));
+					operators.push(c);
 				else {
 					if (c == ')')
-						operators.push(Character.toString(c));
+						operators.push(c);
 					else if(c == '(') {
-						while(operators.peek().charAt(0) != ')')
+						while(operators.peek() != ')')
 							outstr = operators.pop() + outstr;
 						operators.pop();//pop '('
 					}
 					else {
-						while(!operators.empty() && priority(c) < priority(operators.peek().charAt(0)))
+						while(!operators.empty() && priority(c) < priority(operators.peek()))
 							outstr = operators.pop() + outstr;
-						operators.add(Character.toString(c));
+						operators.push(c);
 					}	
 				}
 			}
