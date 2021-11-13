@@ -3,6 +3,7 @@ import java.util.Stack;
 public class Algorithm {
 	
 	private static Stack<Character> operators = new Stack<Character>(); 
+	private static Stack<Double> numStack = new Stack<Double>();
 	
 	public static String toPostfix(String instr) {
 		String outstr = "";
@@ -10,26 +11,23 @@ public class Algorithm {
 			if(!isOperator(c))
 				outstr += c;
 			else {
-				if(operators.isEmpty())
+				if (c == '(')
 					operators.push(c);
-				else {
-					if (c == '(')
-						operators.push(c);
-					else if(c == ')') {
-						while(operators.peek() != '(')
-							outstr += operators.pop();
-						operators.pop();//pop '('
-					}
-					else {
-						while(!operators.empty() && priority(c) <= priority(operators.peek()))
-							outstr += operators.pop();
-						operators.push(c);
-					}	
+				else if(c == ')') {
+					while(operators.peek() != '(')
+						outstr += " " + operators.pop();
+					operators.pop();//pop '('
 				}
+				else {
+					while(!operators.empty() && priority(operators.peek()) >= priority(c))
+						outstr += " " + operators.pop();
+					operators.push(c);
+				}
+				outstr += " ";
 			}
 		}
 		while(!operators.empty())
-			outstr += operators.pop();
+			outstr += " " + operators.pop();
 		return outstr;	
 	}
 	
@@ -41,27 +39,81 @@ public class Algorithm {
 			if(!isOperator(c))
 				outstr = c + outstr;
 			else {
-				if(operators.isEmpty())
+				if (c == ')')
 					operators.push(c);
-				else {
-					if (c == ')')
-						operators.push(c);
-					else if(c == '(') {
-						while(operators.peek() != ')')
-							outstr = operators.pop() + outstr;
-						operators.pop();//pop '('
-					}
-					else {
-						while(!operators.empty() && priority(c) < priority(operators.peek()))
-							outstr = operators.pop() + outstr;
-						operators.push(c);
-					}	
+				else if(c == '(') {
+					while(operators.peek() != ')')
+						outstr = operators.pop() + " " + outstr;
+					operators.pop();//pop '('
 				}
+				else {
+					while(!operators.empty() && priority(c) < priority(operators.peek()))
+						outstr = operators.pop() + " " + outstr;
+					operators.push(c);
+				}
+				outstr = " " + outstr;
 			}
 		}
 		while(!operators.empty())
-			outstr = operators.pop() + outstr;
+			outstr = operators.pop() + " " + outstr;
 		return outstr;	
+	}
+	
+	public static double calPostfix(String instr) {
+		Double n1, n2;
+		String[] substrs = instr.split("\\s+");
+		for(String s: substrs) {
+			if(s.matches("[0-9]+"))
+				numStack.push(Double.parseDouble(s));
+			else {
+				n2 = numStack.pop();
+				n1 = numStack.pop();
+				switch (s.charAt(0)) {
+				case '+':
+					numStack.push(n1+n2);
+					break;
+				case '-':
+					numStack.push(n1-n2);
+					break;
+				case '*':
+					numStack.push(n1*n2);
+					break;
+				case '/':
+					numStack.push(n1/n2);
+					break;
+				}
+			}	
+		}
+		return (double)Math.round(numStack.pop()*100)/100;
+	}
+	
+	public static double calPrefix(String instr) {
+		Double n1, n2;
+		String[] substrs = instr.split("\\s+");
+		for(int i = substrs.length - 1; i >= 0; i--) {
+			String s = substrs[i];
+			if(s.matches("[0-9]+"))
+				numStack.push(Double.parseDouble(s));
+			else {
+				n1 = numStack.pop();
+				n2 = numStack.pop();
+				switch (s.charAt(0)) {
+				case '+':
+					numStack.push(n1+n2);
+					break;
+				case '-':
+					numStack.push(n1-n2);
+					break;
+				case '*':
+					numStack.push(n1*n2);
+					break;
+				case '/':
+					numStack.push(n1/n2);
+					break;
+				}
+			}	
+		}
+		return (double)Math.round(numStack.pop()*100)/100;
 	}
 	
 	private static boolean isOperator(char c) {
